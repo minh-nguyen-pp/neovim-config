@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Vim / Neovim temporary files
+*.swp
+*.swo
+*~
+*.bak
+*.backup
+
+# Local development files
+*.log
+.env
+.env.*
+!.env.example
+
+# Lua cache
+.luarc.json
+
+# Sensitive files
+*credentials*
+*secret*
