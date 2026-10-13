@@ -276,8 +276,17 @@ Expected active client: `jdtls` for Java, `kotlin_lsp` for Kotlin. Allow initial
 | `,w` | Save file |
 | `Space` | Start `/` search |
 | `Ctrl+h/j/k/l` | Move left/down/up/right between windows |
+| `gd` | Go to definition |
+| `Ctrl+o` | Jump back to previous location |
+| `Ctrl+i` | Jump forward again |
+| `gr` | Find all references |
+| `gI` | Go to implementation |
+| `gy` | Go to type definition |
+| `K` | Show documentation |
+| `,rn` | Rename symbol |
+| `,ca` | Code actions |
 | `,l` / `,h` | Next / previous buffer |
-| `,fb` | Select open buffer |
+| `,1`–`,9` | Jump to buffer 1–9 |
 | `,bd` | Close current buffer |
 | `,e` | Open/toggle Snacks Explorer |
 | `,f` | Find files |
