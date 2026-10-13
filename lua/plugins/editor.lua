@@ -65,14 +65,6 @@ return {
         desc = "Grep project",
       },
 
-      {
-        "<leader>fb",
-        function()
-          Snacks.picker.buffers()
-        end,
-        desc = "Find buffer",
-      },
-
       --
       -- Replace your custom Bclose.
       --

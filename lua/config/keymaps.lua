@@ -200,3 +200,83 @@ vim.keymap.set("n", "<leader>ut", function()
 end, {
   desc = "Switch colorscheme",
 })
+
+-- =====================================
+-- LSP navigation
+-- =====================================
+
+local map = vim.keymap.set
+
+-- Go directly to definition.
+map("n", "gd", vim.lsp.buf.definition, {
+  desc = "Go to definition",
+})
+
+-- Go to declaration.
+map("n", "gD", vim.lsp.buf.declaration, {
+  desc = "Go to declaration",
+})
+
+-- Find references using Snacks.
+map("n", "gr", function()
+  Snacks.picker.lsp_references()
+end, {
+  nowait = true,
+  desc = "Find references",
+})
+
+-- Find implementations.
+map("n", "gI", function()
+  Snacks.picker.lsp_implementations()
+end, {
+  desc = "Go to implementation",
+})
+
+-- Find type definition.
+map("n", "gy", function()
+  Snacks.picker.lsp_type_definitions()
+end, {
+  desc = "Go to type definition",
+})
+
+-- Documentation.
+map("n", "K", vim.lsp.buf.hover, {
+  desc = "Hover documentation",
+})
+
+-- Rename across project.
+map("n", "<leader>rn", vim.lsp.buf.rename, {
+  desc = "Rename symbol",
+})
+
+-- Available refactorings / quick fixes.
+map({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, {
+  desc = "Code actions",
+})
+
+-- Search symbols in current file.
+map("n", "<leader>Si", function()
+  Snacks.picker.lsp_symbols()
+end, {
+  desc = "Document symbols",
+})
+
+-- Search symbols across project.
+map("n", "<leader>Sw", function()
+  Snacks.picker.lsp_workspace_symbols()
+end, {
+  desc = "Workspace symbols",
+})
+
+-- Navigate diagnostics.
+map("n", "]d", function()
+  vim.diagnostic.jump({ count = 1 })
+end, {
+  desc = "Next diagnostic",
+})
+
+map("n", "[d", function()
+  vim.diagnostic.jump({ count = -1 })
+end, {
+  desc = "Previous diagnostic",
+})
