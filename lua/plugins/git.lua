@@ -8,7 +8,11 @@ return {
       {
         "]c",
         function()
-          require("gitsigns").nav_hunk("next")
+          if vim.wo.diff then
+            vim.cmd.normal({ "]c", bang = true })
+          else
+            require("gitsigns").nav_hunk("next")
+          end
         end,
         desc = "Next Git change",
       },
@@ -16,7 +20,11 @@ return {
       {
         "[c",
         function()
-          require("gitsigns").nav_hunk("prev")
+          if vim.wo.diff then
+            vim.cmd.normal({ "[c", bang = true })
+          else
+            require("gitsigns").nav_hunk("prev")
+          end
         end,
         desc = "Previous Git change",
       },
