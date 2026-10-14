@@ -13,6 +13,7 @@ This config keeps my original Vim habits: **`,` as leader**, **2-space indentati
 | Plugin management | [lazy.nvim](https://github.com/folke/lazy.nvim) |
 | Explorer / file search / live grep | [snacks.nvim](https://github.com/folke/snacks.nvim), `ripgrep`, `fd` |
 | Syntax highlighting | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) |
+| On-screen navigation | [flash.nvim](https://github.com/folke/flash.nvim) |
 | Git signs / history / full diffs | [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim), [diffview.nvim](https://github.com/sindrets/diffview.nvim) |
 | File tabs / statusline | [bufferline.nvim](https://github.com/akinsho/bufferline.nvim), [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim) |
 | Colorschemes | [Catppuccin](https://github.com/catppuccin/nvim) Mocha and [TokyoNight](https://github.com/folke/tokyonight.nvim) |
@@ -274,6 +275,8 @@ Expected active client: `jdtls` for Java, `kotlin_lsp` for Kotlin. Allow initial
 | Key | Action |
 | --- | --- |
 | `,w` | Save file |
+| `,,w` | Flash jump to a visible match, including in another window |
+| `,,t` | Flash Tree-sitter selection |
 | `Space` | Start `/` search |
 | `Ctrl+h/j/k/l` | Move left/down/up/right between windows |
 | `gd` | Go to definition |
@@ -306,6 +309,8 @@ Expected active client: `jdtls` for Java, `kotlin_lsp` for Kotlin. Allow initial
 | `,q` / `,x` | Open personal scratch / Markdown scratch file |
 
 The definitive source for keybindings is `lua/config/keymaps.lua` and the plugin-specific `keys` tables. Inspect a mapping with `:verbose nmap ,ot`, or use `:verbose xmap ,oy` for a Visual-mode mapping.
+
+Flash's `,,w` and `,,t` mappings work in Normal, Visual, and operator-pending modes. Flash leaves `/` search and native `f`/`F`/`t`/`T` motions unchanged; its configuration is in `lua/plugins/flash.lua`.
 
 ### Splits and buffers
 
@@ -354,6 +359,7 @@ Do **not** list `blink.cmp` as already installed or add it to `lazy-lock.json` b
     │   └── autocmds.lua
     └── plugins/
         ├── editor.lua       # Snacks, which-key
+        ├── flash.lua        # Flash jump and Tree-sitter selection
         ├── treesitter.lua
         ├── git.lua
         ├── theme.lua
