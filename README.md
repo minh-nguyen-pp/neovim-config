@@ -146,7 +146,7 @@ Within each Neovim:
 
 - `,ot` opens/focuses the embedded OpenCode terminal on the right; subsequent uses reuse the same managed terminal.
 - Start a session in the TUI for each worktree. Plugin requests use Neovim's working directory and target its **most recently updated, unarchived root session**. Two Neovim instances in the same directory share that session target.
-- `,oy` in Visual mode opens an **editable Ask prompt** with the selected context. Add your instruction and confirm to submit. Unlike v1, v2's `prompt()` submits immediately; this mapping uses `ask()` to keep selection-only actions from sending a request.
+- Open the TUI with `,ot` and leave it at the prompt. Then use `,oy` in Visual mode to **append a selected file/line reference to its draft without submitting**. Editor focus stays in your source buffer, so you can repeat this across multiple selections or files. Return with `,ot`, type your instruction, and press Enter when ready. This uses bracketed terminal paste because the v2 plugin's `prompt()` submits immediately.
 - `,oe` explains the current code or selection immediately using the built-in *Explain @this and its context* prompt.
 - `,oa` opens a custom prompt; `,os` opens the OpenCode actions picker.
 
@@ -300,7 +300,7 @@ Expected active client: `jdtls` for Java, `kotlin_lsp` for Kotlin. Allow initial
 | `]c` / `[c` | Next / previous changed Git hunk |
 | `,ut` | Theme picker |
 | `,ot` | Open/focus managed OpenCode terminal |
-| `,oy` (Visual) | Open editable Ask prompt with selected-code context |
+| `,oy` (Visual) | Append selected-code reference to the TUI draft without submitting |
 | `,oe` (Normal/Visual) | Explain selected/current code |
 | `,oa` (Normal/Visual) | Ask OpenCode a custom question |
 | `,os` (Normal/Visual) | OpenCode action picker |
