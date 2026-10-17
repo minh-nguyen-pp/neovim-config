@@ -19,7 +19,7 @@ This config keeps my original Vim habits: **`,` as leader**, **2-space indentati
 | Colorschemes | [Catppuccin](https://github.com/catppuccin/nvim) Mocha and [TokyoNight](https://github.com/folke/tokyonight.nvim) |
 | Keybinding help | [which-key.nvim](https://github.com/folke/which-key.nvim) |
 | Java/Kotlin navigation | Neovim native LSP + [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig); [Mason](https://github.com/mason-org/mason.nvim) for JDTLS installation |
-| AI assistant | [opencode.nvim](https://github.com/nickjvandyke/opencode.nvim), pinned to **v1.0.1** for OpenCode CLI v1 |
+| AI assistant | [opencode.nvim](https://github.com/nickjvandyke/opencode.nvim), **main** branch for OpenCode CLI v2 |
 
 ## 1. Install system prerequisites (macOS)
 
@@ -105,28 +105,28 @@ After installation, restart Neovim and verify:
 
 > Plugins and parsers are downloaded to local Neovim data directories. Don't commit `~/.local/share/nvim/`, caches, or local state; commit `lazy-lock.json` instead.
 
-## 4. Install OpenCode v1 (for AI integration)
+## 4. Install OpenCode v2 (for AI integration)
 
-This config is written for **OpenCode CLI v1** and pins `nickjvandyke/opencode.nvim` to **`1.0.1`**. The plugin's **main** branch targets OpenCode v2; don't unpin the plugin or upgrade the CLI independently without updating this integration.
+This config uses **OpenCode CLI v2** (verified with **v2.0.32**) and the plugin's **main** branch, with the tested commit recorded in `lazy-lock.json`. The plugin's stable v1 tags use the old server API and are incompatible with v2. See the [OpenCode v2 migration guide](https://opencode.ai/v2/docs/migrate-v1) for CLI configuration and API changes.
 
-If OpenCode v1 already works on your machine, just verify it:
+If OpenCode v2 already works on your machine, just verify it:
 
 ```sh
 opencode --version
 command -v opencode
 ```
 
-For a new installation of the same CLI version used with this setup, npm is an option (Node.js required):
+For a new installation, follow the [OpenCode v2 installation instructions](https://opencode.ai/v2/docs/). After updating this Neovim config, install the locked v2-compatible plugin:
 
-```sh
-brew install node
-npm install -g opencode-ai@1.18.35
-opencode --version
+```vim
+:Lazy restore opencode.nvim
 ```
 
 Configure the AI provider/authentication through OpenCode itself. **Never commit API tokens or credentials.**
 
-### One OpenCode TUI per Neovim / worktree
+### One shared server, one TUI per Neovim / worktree
+
+OpenCode v2 automatically discovers or starts **one background service per user account**. Each embedded `opencode` TUI connects to that service. The Neovim plugin reads the service registration and credentials automatically; no per-Neovim port or hardcoded server URL is needed. See the [v2 CLI documentation](https://dev.opencode.ai/v2/docs/cli).
 
 Open each worktree in a **separate Neovim process**, launched from the worktree's root:
 
@@ -145,14 +145,14 @@ nvim .
 Within each Neovim:
 
 - `,ot` opens/focuses the embedded OpenCode terminal on the right; subsequent uses reuse the same managed terminal.
-- The config assigns **a distinct, dynamically chosen localhost port per Neovim process**, rather than sharing `127.0.0.1:4096`.
-- `,oy` in Visual mode appends **only the selected file/line context** to OpenCode's prompt; it does **not** submit an instruction. Type your own prompt in the TUI.
+- Start a session in the TUI for each worktree. Plugin requests use Neovim's working directory and target its **most recently updated, unarchived root session**. Two Neovim instances in the same directory share that session target.
+- `,oy` in Visual mode opens an **editable Ask prompt** with the selected context. Add your instruction and confirm to submit. Unlike v1, v2's `prompt()` submits immediately; this mapping uses `ask()` to keep selection-only actions from sending a request.
 - `,oe` explains the current code or selection immediately using the built-in *Explain @this and its context* prompt.
 - `,oa` opens a custom prompt; `,os` opens the OpenCode actions picker.
 
 **Save your file first**: `@this` normally uses a file-and-line reference, and OpenCode reads the referenced source from disk.
 
-Closing the Neovim process normally also terminates its managed terminal job. If Neovim is killed unexpectedly, verify that no orphaned OpenCode processes remain.
+Closing Neovim terminates its managed TUI, while the shared background service remains available to other clients. Use `opencode service status` and `opencode api get /api/info` to inspect it. `opencode service restart` restarts the service for **all** connected clients.
 
 ## 5. Java and Kotlin LSP navigation
 
@@ -300,7 +300,7 @@ Expected active client: `jdtls` for Java, `kotlin_lsp` for Kotlin. Allow initial
 | `]c` / `[c` | Next / previous changed Git hunk |
 | `,ut` | Theme picker |
 | `,ot` | Open/focus managed OpenCode terminal |
-| `,oy` (Visual) | Append selected-code context, **without submitting** |
+| `,oy` (Visual) | Open editable Ask prompt with selected-code context |
 | `,oe` (Normal/Visual) | Explain selected/current code |
 | `,oa` (Normal/Visual) | Ask OpenCode a custom question |
 | `,os` (Normal/Visual) | OpenCode action picker |
@@ -365,7 +365,7 @@ Do **not** list `blink.cmp` as already installed or add it to `lazy-lock.json` b
         ├── theme.lua
         ├── bufferline.lua
         ├── lualine.lua
-        ├── opencode.lua     # per-process port + TUI
+        ├── opencode.lua     # shared v2 service + per-Neovim TUI
         └── lsp.lua          # Java/Kotlin (if committed)
 ```
 
@@ -387,8 +387,9 @@ Do not commit plugin binaries, Java language-server caches, Tree-sitter download
 | Kotlin LSP won't attach | Confirm `kotlin-lsp --version`, Neovim executable path, and root markers (`settings.gradle.kts` etc.). |
 | `,ot` missing | `:verbose nmap ,ot`, then `:messages` to inspect errors. |
 | `,oy` missing in Normal mode | Expected: mapping is **Visual-mode-only**; use `:verbose xmap ,oy`. |
-| OpenCode cannot connect | Match OpenCode CLI v1 to plugin v1.0.1; run `:checkhealth opencode`, `:messages`. |
-| Multiple OpenCode terminals | Check `lua/plugins/opencode.lua` uses one Snacks terminal command and a per-Neovim port; do not use old hardcoded `4096` config. |
+| OpenCode cannot connect | Verify CLI v2 and restore the locked main-branch plugin with `:Lazy restore opencode.nvim`; run `:checkhealth opencode`, `:messages`, and `opencode service status`. |
+| No OpenCode session found | Open the TUI with `,ot` and start a session in Neovim's current directory (`:pwd`). |
+| Multiple OpenCode terminals | One TUI per Neovim is expected; repeated `,ot` reuses the same Snacks terminal. All TUIs share the v2 background service. |
 
 ## 10. Maintenance
 

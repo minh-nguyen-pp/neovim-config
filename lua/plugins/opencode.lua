@@ -1,28 +1,10 @@
--- Allocate a different port for each Neovim process.
--- macOS chooses an available local TCP port.
-local function allocate_port()
-  local socket = assert(vim.uv.new_tcp())
-
-  local ok, err = socket:bind("127.0.0.1", 0)
-  if not ok then
-    socket:close()
-    error(err)
-  end
-
-  local address = assert(socket:getsockname())
-  local port = address.port
-
-  socket:close()
-  return port
-end
-
 -- The directory where this Neovim instance started.
 -- Launch Neovim from your worktree root.
 local cwd = vim.fn.getcwd()
 
-local port = allocate_port()
-local url = "http://127.0.0.1:" .. port
-local cmd = "opencode --hostname 127.0.0.1 --port " .. port
+-- OpenCode v2 discovers or starts the shared background service.
+-- Each Neovim keeps its own TUI, without allocating a private server.
+local cmd = "opencode"
 
 -- Shared options ensure Snacks reuses the same terminal.
 local terminal_opts = {
@@ -61,8 +43,9 @@ return {
   {
     "nickjvandyke/opencode.nvim",
 
-    -- Keep OpenCode v1 compatibility.
-    version = "1.0.1",
+    -- main supports the OpenCode v2 API; stable v1 tags do not.
+    branch = "main",
+    version = false,
 
     dependencies = {
       "folke/snacks.nvim",
@@ -79,12 +62,12 @@ return {
       {
         "<leader>oy",
         function()
-          -- Append ONLY the selected code reference.
-          -- Do not submit the prompt.
-          require("opencode").prompt("@this ")
+          -- In v2 prompt() submits immediately. Ask keeps the selection
+          -- editable until you add an instruction and confirm submission.
+          require("opencode").ask("@this ")
         end,
         mode = "x",
-        desc = "Send selected code to OpenCode",
+        desc = "Ask OpenCode with selected code",
       },
 
       {
@@ -105,22 +88,20 @@ return {
         desc = "OpenCode actions",
       },
       {
-          "<leader>oe",
-          function()
-              require("opencode").prompt("Explain @this and its context")
-          end,
-          mode = { "n", "x" },
-          desc = "Explain code with OpenCode",
+        "<leader>oe",
+        function()
+          require("opencode").prompt("Explain @this and its context")
+        end,
+        mode = { "n", "x" },
+        desc = "Explain code with OpenCode",
       },
     },
 
     config = function()
       vim.g.opencode_opts = {
         server = {
-          -- Explicitly target this Neovim's own server.
-          url = url,
-
-          -- Auto-start it only when connection fails.
+          -- Discover the shared service and its credentials automatically.
+          -- Start our TUI only when no healthy service is available.
           start = ensure_opencode,
         },
       }
